@@ -60,7 +60,7 @@ class AppTheme {
       titleTextStyle: AppTextStyles.headlineMedium.copyWith(color: AppColors.textPrimary),
       iconTheme: const IconThemeData(color: AppColors.textPrimary),
     ),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: AppColors.surface,
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
