@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
+import '../../core/auth/auth_service.dart';
+import '../../core/navigation/page_transitions.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/demo/demo_data.dart';
+import '../auth/login_page.dart';
 import '../blocs/app_bloc.dart';
 import 'milestone_payment_page.dart';
 import 'price_tracker_page.dart';
@@ -46,9 +49,14 @@ class _HomePageState extends State<HomePage> {
                     IconButton(
                       icon: const Icon(Icons.workspace_premium_rounded, color: AppColors.warning),
                       tooltip: 'Upgrade',
-                      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PaywallPage())),
+                      onPressed: () => pushFade(context, const PaywallPage()),
                     ),
                     IconButton(icon: const Icon(Icons.add_rounded, color: AppColors.primary), onPressed: () => _showAddSheet(context)),
+                    IconButton(
+                      icon: const Icon(Icons.logout_rounded, color: AppColors.textSecondary),
+                      tooltip: 'Log out',
+                      onPressed: () => _logout(context),
+                    ),
                     const Gap(4),
                   ],
                 ),
@@ -70,23 +78,21 @@ class _HomePageState extends State<HomePage> {
                       icon: Icons.check_circle_outline_rounded,
                       label: 'Track build remotely',
                       color: AppColors.primary,
-                      onTap: () => Navigator.push(context,
-                          MaterialPageRoute(builder: (_) => MilestonePaymentPage(project: buildDemoProject()))),
+                      onTap: () => pushFade(context, MilestonePaymentPage(project: buildDemoProject())),
                     ).animate(delay: 200.ms).fadeIn().slideX(begin: -0.1),
                     const Gap(8),
                     _FeatureCard(
                       icon: Icons.bar_chart_rounded,
                       label: 'Geotagged check-ins',
                       color: AppColors.success,
-                      onTap: () => Navigator.push(context,
-                          MaterialPageRoute(builder: (_) => MilestonePaymentPage(project: buildDemoProject()))),
+                      onTap: () => pushFade(context, MilestonePaymentPage(project: buildDemoProject())),
                     ).animate(delay: 250.ms).fadeIn().slideX(begin: -0.1),
                     const Gap(8),
                     _FeatureCard(
                       icon: Icons.send_rounded,
                       label: 'Live BOQ pricing',
                       color: AppColors.warning,
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PriceTrackerPage())),
+                      onTap: () => pushFade(context, const PriceTrackerPage()),
                     ).animate(delay: 300.ms).fadeIn().slideX(begin: -0.1),
                     const Gap(24),
                     Text('Recent Activity', style: AppTextStyles.headlineLarge.copyWith(color: AppColors.textPrimary)),
@@ -129,6 +135,25 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  Future<void> _logout(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: const Text('Log out?'),
+        content: const Text('You can log back in with the same email and password.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Log out')),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    await AuthService.instance.logout();
+    if (!context.mounted) return;
+    pushFadeReplacingStack(context, const LoginPage());
   }
 
   void _showAddSheet(BuildContext context) {

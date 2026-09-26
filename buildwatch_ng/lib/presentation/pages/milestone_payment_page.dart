@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
 import '../../core/logic/milestone_payment_engine.dart';
 import '../../core/models/milestone.dart';
 import '../../core/models/project.dart';
+import '../../core/navigation/page_transitions.dart';
 import '../../core/theme/app_theme.dart';
 import 'capture_page.dart';
 import 'timeline_page.dart';
@@ -41,11 +43,9 @@ class _MilestonePaymentPageState extends State<MilestonePaymentPage> {
   }
 
   Future<void> _capture(Milestone milestone) async {
-    final entry = await Navigator.push<ProgressEntry>(
+    final entry = await pushFade<ProgressEntry>(
       context,
-      MaterialPageRoute(
-        builder: (_) => CapturePage(milestoneId: milestone.id, milestoneTitle: milestone.title),
-      ),
+      CapturePage(milestoneId: milestone.id, milestoneTitle: milestone.title),
     );
     if (entry == null) return;
     _updateMilestone(milestone.copyWith(
@@ -115,11 +115,9 @@ class _MilestonePaymentPageState extends State<MilestonePaymentPage> {
                   onCapture: () => _capture(m),
                   onVerify: () => _verify(m),
                   onRelease: () => _release(m),
-                  onViewTimeline: () => Navigator.push(
+                  onViewTimeline: () => pushFade(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => TimelinePage(title: m.title, entries: m.progressEntries),
-                    ),
+                    TimelinePage(title: m.title, entries: m.progressEntries),
                   ),
                 ),
               )),
@@ -156,11 +154,16 @@ class _ProgressCard extends StatelessWidget {
           const Gap(14),
           ClipRRect(
             borderRadius: BorderRadius.circular(999),
-            child: LinearProgressIndicator(
-              value: progress / 100,
-              minHeight: 10,
-              backgroundColor: Colors.white24,
-              valueColor: const AlwaysStoppedAnimation(Colors.white),
+            child: TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0, end: progress / 100),
+              duration: const Duration(milliseconds: 700),
+              curve: Curves.easeOutCubic,
+              builder: (context, value, _) => LinearProgressIndicator(
+                value: value,
+                minHeight: 10,
+                backgroundColor: Colors.white24,
+                valueColor: const AlwaysStoppedAnimation(Colors.white),
+              ),
             ),
           ),
           const Gap(18),
@@ -284,10 +287,17 @@ class _MilestoneCard extends StatelessWidget {
                   style: ElevatedButton.styleFrom(minimumSize: const Size(0, 40)),
                 ),
               if (milestone.status == MilestoneStatus.paid)
-                const Chip(
-                  label: Text('Paid out'),
-                  avatar: Icon(Icons.check_circle_rounded, color: AppColors.success, size: 16),
-                ),
+                Chip(
+                  label: const Text('Paid out'),
+                  avatar: const Icon(Icons.check_circle_rounded, color: AppColors.success, size: 16)
+                      .animate()
+                      .scale(
+                        duration: 450.ms,
+                        curve: Curves.elasticOut,
+                        begin: const Offset(0.2, 0.2),
+                        end: const Offset(1, 1),
+                      ),
+                ).animate().fadeIn(duration: 300.ms),
             ],
           ),
         ],
