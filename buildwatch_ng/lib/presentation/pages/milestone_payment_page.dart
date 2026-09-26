@@ -104,9 +104,9 @@ class _MilestonePaymentPageState extends State<MilestonePaymentPage> {
             released: _currency.format(released),
             remaining: _currency.format(remaining),
           ),
-          const Gap(24),
-          Text('Milestones', style: AppTextStyles.headlineSmall.copyWith(color: AppColors.textPrimary)),
-          const Gap(12),
+          const Gap(28),
+          Text('Milestones', style: AppTextStyles.headlineLarge.copyWith(color: AppColors.textPrimary)),
+          const Gap(14),
           ..._project.milestones.map((m) => Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: _MilestoneCard(
@@ -138,10 +138,13 @@ class _ProgressCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: AppColors.primaryGradient,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(color: AppColors.primary.withOpacity(0.28), blurRadius: 24, offset: const Offset(0, 10)),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,18 +152,18 @@ class _ProgressCard extends StatelessWidget {
           Text('Build Progress', style: AppTextStyles.labelMedium.copyWith(color: Colors.white70)),
           const Gap(6),
           Text('${progress.toStringAsFixed(0)}%',
-              style: AppTextStyles.displayMedium.copyWith(color: Colors.white, fontWeight: FontWeight.w800)),
-          const Gap(12),
+              style: AppTextStyles.displayLarge.copyWith(color: Colors.white, fontWeight: FontWeight.w800)),
+          const Gap(14),
           ClipRRect(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(999),
             child: LinearProgressIndicator(
               value: progress / 100,
-              minHeight: 8,
+              minHeight: 10,
               backgroundColor: Colors.white24,
               valueColor: const AlwaysStoppedAnimation(Colors.white),
             ),
           ),
-          const Gap(16),
+          const Gap(18),
           Row(
             children: [
               Expanded(
@@ -187,7 +190,7 @@ class _StatColumn extends StatelessWidget {
         children: [
           Text(label, style: AppTextStyles.labelSmall.copyWith(color: Colors.white70)),
           const Gap(2),
-          Text(value, style: AppTextStyles.headlineMedium.copyWith(color: Colors.white)),
+          Text(value, style: AppTextStyles.headlineLarge.copyWith(color: Colors.white, fontWeight: FontWeight.w800)),
         ],
       );
 }
@@ -213,11 +216,11 @@ class _MilestoneCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final statusMeta = _statusMeta(milestone.status);
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: AppColors.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -229,10 +232,10 @@ class _MilestoneCard extends StatelessWidget {
                     style: AppTextStyles.headlineSmall.copyWith(color: AppColors.textPrimary)),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: statusMeta.color.withOpacity(0.14),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(statusMeta.label,
                     style: AppTextStyles.labelSmall.copyWith(color: statusMeta.color, fontWeight: FontWeight.w700)),
