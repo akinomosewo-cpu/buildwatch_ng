@@ -18,5 +18,6 @@ build/
 Podfile.lock
 .idea/
 .vscode/
+*.iml
 *.log
 *.DS_Store

@@ -3,7 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/demo/demo_data.dart';
 import '../blocs/app_bloc.dart';
+import 'milestone_payment_page.dart';
+import 'price_tracker_page.dart';
+import 'paywall_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -39,6 +43,11 @@ class _HomePageState extends State<HomePage> {
                     Text('BuildWatch NG', style: AppTextStyles.headlineMedium.copyWith(color: AppColors.textPrimary)),
                   ]),
                   actions: [
+                    IconButton(
+                      icon: const Icon(Icons.workspace_premium_rounded, color: AppColors.warning),
+                      tooltip: 'Upgrade',
+                      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PaywallPage())),
+                    ),
                     IconButton(icon: const Icon(Icons.add_rounded, color: AppColors.primary), onPressed: () => _showAddSheet(context)),
                     const Gap(4),
                   ],
@@ -48,20 +57,37 @@ class _HomePageState extends State<HomePage> {
                   sliver: SliverList(delegate: SliverChildListDelegate([
                     const Gap(8),
                     Row(children: [
-                      _StatCard(label: 'Projects', value: state is AppLoaded ? state.items.length.toString() : '0', color: AppColors.primary).animate(delay: 50.ms).fadeIn().slideY(begin: 0.1),
+                      Expanded(child: _StatCard(label: 'Projects', value: state is AppLoaded ? state.items.length.toString() : '0', color: AppColors.primary).animate(delay: 50.ms).fadeIn().slideY(begin: 0.1)),
                       const Gap(12),
-                      _StatCard(label: 'Milestones', value: state is AppLoaded ? state.items.where((i) => i['status'] == 'active').length.toString() : '0', color: AppColors.success).animate(delay: 100.ms).fadeIn().slideY(begin: 0.1),
+                      Expanded(child: _StatCard(label: 'Milestones', value: state is AppLoaded ? state.items.where((i) => i['status'] == 'active').length.toString() : '0', color: AppColors.success).animate(delay: 100.ms).fadeIn().slideY(begin: 0.1)),
                       const Gap(12),
-                      _StatCard(label: 'Alerts', value: state is AppLoaded ? state.items.where((i) => i['status'] == 'pending').length.toString() : '0', color: AppColors.warning).animate(delay: 150.ms).fadeIn().slideY(begin: 0.1),
+                      Expanded(child: _StatCard(label: 'Alerts', value: state is AppLoaded ? state.items.where((i) => i['status'] == 'pending').length.toString() : '0', color: AppColors.warning).animate(delay: 150.ms).fadeIn().slideY(begin: 0.1)),
                     ]),
                     const Gap(24),
                     Text('What you can do', style: AppTextStyles.headlineSmall.copyWith(color: AppColors.textPrimary)),
                     const Gap(12),
-                    _FeatureCard(icon: Icons.check_circle_outline_rounded, label: 'Track build remotely', color: AppColors.primary).animate(delay: 200.ms).fadeIn().slideX(begin: -0.1),
+                    _FeatureCard(
+                      icon: Icons.check_circle_outline_rounded,
+                      label: 'Track build remotely',
+                      color: AppColors.primary,
+                      onTap: () => Navigator.push(context,
+                          MaterialPageRoute(builder: (_) => MilestonePaymentPage(project: buildDemoProject()))),
+                    ).animate(delay: 200.ms).fadeIn().slideX(begin: -0.1),
                     const Gap(8),
-                    _FeatureCard(icon: Icons.bar_chart_rounded, label: 'Geotagged check-ins', color: AppColors.success).animate(delay: 250.ms).fadeIn().slideX(begin: -0.1),
+                    _FeatureCard(
+                      icon: Icons.bar_chart_rounded,
+                      label: 'Geotagged check-ins',
+                      color: AppColors.success,
+                      onTap: () => Navigator.push(context,
+                          MaterialPageRoute(builder: (_) => MilestonePaymentPage(project: buildDemoProject()))),
+                    ).animate(delay: 250.ms).fadeIn().slideX(begin: -0.1),
                     const Gap(8),
-                    _FeatureCard(icon: Icons.send_rounded, label: 'Live BOQ pricing', color: AppColors.warning).animate(delay: 300.ms).fadeIn().slideX(begin: -0.1),
+                    _FeatureCard(
+                      icon: Icons.send_rounded,
+                      label: 'Live BOQ pricing',
+                      color: AppColors.warning,
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PriceTrackerPage())),
+                    ).animate(delay: 300.ms).fadeIn().slideX(begin: -0.1),
                     const Gap(24),
                     Text('Recent Activity', style: AppTextStyles.headlineSmall.copyWith(color: AppColors.textPrimary)),
                     const Gap(12),
@@ -114,16 +140,14 @@ class _StatCard extends StatelessWidget {
   final Color color;
   const _StatCard({required this.label, required this.value, required this.color});
   @override
-  Widget build(BuildContext context) => Expanded(
-    child: Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppColors.border)),
-      child: Column(children: [
-        Text(value, style: AppTextStyles.displaySmall.copyWith(color: color, fontWeight: FontWeight.w800)),
-        const Gap(2),
-        Text(label, style: AppTextStyles.labelSmall.copyWith(color: AppColors.textSecondary), textAlign: TextAlign.center),
-      ]),
-    ),
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.all(14),
+    decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppColors.border)),
+    child: Column(children: [
+      Text(value, style: AppTextStyles.displaySmall.copyWith(color: color, fontWeight: FontWeight.w800)),
+      const Gap(2),
+      Text(label, style: AppTextStyles.labelSmall.copyWith(color: AppColors.textSecondary), textAlign: TextAlign.center),
+    ]),
   );
 }
 
@@ -131,18 +155,23 @@ class _FeatureCard extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
-  const _FeatureCard({required this.icon, required this.label, required this.color});
+  final VoidCallback? onTap;
+  const _FeatureCard({required this.icon, required this.label, required this.color, this.onTap});
   @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)),
-    child: Row(children: [
-      Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(8)),
-        child: Icon(icon, color: color, size: 16)),
-      const Gap(14),
-      Expanded(child: Text(label, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary))),
-      const Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary, size: 18),
-    ]),
+  Widget build(BuildContext context) => InkWell(
+    onTap: onTap,
+    borderRadius: BorderRadius.circular(12),
+    child: Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)),
+      child: Row(children: [
+        Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(8)),
+          child: Icon(icon, color: color, size: 16)),
+        const Gap(14),
+        Expanded(child: Text(label, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary))),
+        const Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary, size: 18),
+      ]),
+    ),
   );
 }
 
